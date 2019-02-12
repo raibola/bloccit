@@ -4,17 +4,21 @@ const base = "http://localhost:3000/";
 
 describe("routes : static", () => {
 
-//#1
+
   describe("GET /", () => {
-
-//#2
     it("should return status code 200", (done) => {
-
-//#3
       request.get(base, (err, res, body) => {
         expect(res.statusCode).toBe(200);
+        done();
+      });
+    });
 
-//#4
+  });
+
+  describe("GET /marco", () => {
+    it("should return status code 200", (done) => {
+      request.get(base, (err, res, body) => {
+        expect(res.statusCode).toBe(200);
         done();
       });
     });
