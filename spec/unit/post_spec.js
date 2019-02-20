@@ -76,22 +76,6 @@ describe("Post", () => {
     })
   });
 
-});
-
-  describe("#getTopic()", () => {
-
-    it("should return the associated topic", (done) => {
-
-      this.post.getTopic()
-      .then((associatedTopic) => {
-        expect(associatedTopic.title).toBe("Expeditions to Alpha Centauri");
-        done();
-      });
-
-    });
-
-  });
-
   describe("#setTopic()", () => {
 
     it("should associate a topic and a post together", (done) => {
@@ -113,3 +97,19 @@ describe("Post", () => {
     });
 
   });
+
+  describe("#getTopic()", () => {
+
+    it("should return the associated topic", (done) => {
+
+      this.post.getTopic()
+      .then((associatedTopic) => {
+        expect(associatedTopic.title).toBe("Expeditions to Alpha Centauri");
+        done();
+      });
+
+    });
+
+  });
+
+});
