@@ -1,9 +1,9 @@
-const request = require('request');
-const server = require('../../src/server');
-const base = 'http://localhost:3000/topics';
-const sequelize = require('../../src/db/models').sequelize;
-const Topic = require('../../src/db/models').Topic;
-const Post = require('../../src/db/models').Post;
+const request = require("request");
+const server = require("../../src/server");
+const base = "http://localhost:3000/topics";
+const sequelize = require("../../src/db/models/index").sequelize;
+const Topic = require("../../src/db/models").Topic;
+const Post = require("../../src/db/models").Post;
 const Flair = require('../../src/db/models').Flair;
 
 describe("routes : flairs", () => {
@@ -62,33 +62,67 @@ describe("routes : flairs", () => {
     
       });
 
-      describe('POST /posts/:postId/flair/create', () => {
-		it('should create a new flair and redirect', done => {
-			const options = {
-				url: `${base}/${this.topic.id}/posts/${this.post.id}/flairs/create`,
-				form: {
-					name: "chill",
-                    color: "blue",
-                    postId: this.post.id,
-                    topicId: this.post.topicId
-				},
-			};
-			request.post(options, (err, res, body) => {
-				Flair.findOne({ where: { name: "chill" } })
-					.then((flair) => {
-						expect(flair).not.toBeNull();
-						expect(flair.name).toBe("chill");
-						expect(flair.color).toBe("blue");
-						expect(flair.postId).not.toBeNull();
-						done();
-					})
-					.catch(err => {
-						console.log(err);
-						done();
-					});
-			});
-		});
-	});
+    describe('POST /posts/:postId/flair/create', () => {
+        it('should create a new flair and redirect', (done) => {
+          const options = {
+            url: `${base}/${this.topic.id}/posts/${this.post.id}/flairs/create`,
+            form: {
+              name: "chill",
+                        color: "blue",
+                        topicId: this.post.topicId,
+                        postId: this.post.id
+            },
+          };
+          request.post(options, (err, res, body) => {
+            Flair.findOne({ where: { name: "chill" } })
+              .then((flair) => {
+                expect(flair).not.toBeNull();
+                expect(flair.name).toBe("chill");
+                expect(flair.color).toBe("blue");
+                expect(flair.postId).not.toBeNull();
+                done();
+              })
+              .catch(err => {
+                console.log(err);
+                done();
+              });
+          });
+        });
+      });
 
+      describe("GET /topics/:topicId/posts/:postId/flairs/:id", () => {
+        it("should render a view with the selected flair", (done) => {
+          request.get(`${base}/${this.topic.id}/posts/${this.post.id}/flairs/${this.flair.id}`, (err, res, body) => {
+            expect(err).toBeNull();
+            expect(body).toContain("chill");
+            done();
+          })
+        })
+      })
+    
+      describe("POST /topics/:topicId/posts/:postId/flairs/:id/destroy", () => {
+        it("should delete the flair with the associated ID", (done) => {
+          expect(this.flair.id).toBe(1);
+          request.post(`${base}/${this.topic.id}/posts/${this.post.id}/flairs/${this.flair.id}/destroy`, (err, res, body) => {
+            Flair.findById(1)
+            .then((flair) => {
+              expect(err).toBeNull();
+              expect(flair).toBeNull();
+              done();
+            })
+          })
+        })
+      })
+    
+      describe("GET /topics/:topicId/posts/:postId/flairs/:id/edit", () => {
+        it("should render a view with an edit flair form", (done) => {
+          request.get(`${base}/${this.topic.id}/posts/${this.post.id}/flairs/${this.flair.id}/edit`, (err, res, body) => {
+            expect(err).toBeNull();
+            expect(body).toContain("Edit Flair");
+            expect(body).toContain("chill");
+            done();
+          })
+        })
+      })
   
   });
