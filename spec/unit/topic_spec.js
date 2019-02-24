@@ -1,53 +1,71 @@
 const sequelize = require("../../src/db/models/index").sequelize;
 const Topic = require("../../src/db/models").Topic;
 const Post = require("../../src/db/models").Post;
+const User = require("../../src/db/models").User;
 
 describe("Topic", () => {
 
-    beforeEach((done) => {
-      this.topic;
-      sequelize.sync({force: true}).then((res) => {
+  beforeEach((done) => {
+    this.topic;
+    this.post;
+    this.user;
+
+    sequelize.sync({force: true}).then((res) => {
+
+// #2
+      User.create({
+        email: "starman@tesla.com",
+        password: "Trekkie4lyfe"
+      })
+      .then((user) => {
+        this.user = user; //store the user
+
+// #3
         Topic.create({
-          title: "Best ramens in OC",
-          description: "a list of best ramens you can find in OC"
+          title: "Expeditions to Alpha Centauri",
+          description: "A compilation of reports from recent visits to the star system.",
+
+// #4
+          posts: [{
+            title: "My first visit to Proxima Centauri b",
+            body: "I saw some rocks.",
+            userId: this.user.id
+          }]
+        }, {
+
+// #5
+          include: {
+            model: Post,
+            as: "posts"
+          }
         })
         .then((topic) => {
-          this.topic = topic;
-          Post.create({
-            title: "J San Ramen",
-            body: "I tried it and it's good, located in Irvine, CA",
-            topicId: this.topic.id
-          })
-          .then((post) => {
-            this.post = post;
-            done();
-          });
-        })
-        .catch((err) => {
-          console.log(err);
+          this.topic = topic; //store the topic
+          this.post = topic.posts[0]; //store the post
           done();
-        });
-      });
+        })
+      })
     });
+  });
 
-    describe('#create()', () => {
-        it('should create a topic object with a title, description, and topic Id', (done) => {
-            expect(this.topic.title).toContain("Best ramens in OC");
-            expect(this.topic.description).toContain("a list of best ramens you can find in OC");
+  describe('#create()', () => {
+    it('should create a topic object with a title, description, and topic Id', (done) => {
+        expect(this.topic.title).toContain("Expeditions to Alpha Centauri");
+        expect(this.topic.description).toContain("A compilation of reports from recent visits to the star system.");
+        done();
+    })  
+})
+
+describe('#getPosts()', () => {
+    it('should return all posts with the topic in scope', (done) => {
+        this.topic.getPosts()
+        .then((associatedPosts) => {
+            expect(associatedPosts[0].title).toBe("My first visit to Proxima Centauri b");
+            expect(associatedPosts[0].topicId).toBe(this.topic.id);
             done();
-        })  
-    })
-    
-    describe('#getPosts()', () => {
-        it('should return all posts with the associated topic', (done) => {
-            this.topic.getPosts()
-            .then((associatedPosts) => {
-                expect(associatedPosts[0].title).toBe("J San Ramen");
-                expect(associatedPosts[0].body).toBe("I tried it and it's good, located in Irvine, CA");
-                expect(associatedPosts[0].topicId).toBe(this.topic.id);
-                done();
-            })
         })
     })
+})
+
 
 });
