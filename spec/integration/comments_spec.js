@@ -136,6 +136,26 @@ describe("routes : comments", () => {
                });
              })
            });
+
+           it("should not delete the comment with the associated ID from different member", (done) => {
+            Comment.all()
+            .then((comments) => {
+              const commentCountBeforeDelete = comments.length;
+              expect(commentCountBeforeDelete).toBe(1);
+              request.post(
+              `${base}${this.topic.id}/posts/${this.post.id}/comments/${this.comment.id}/destroy`,
+              (err, res, body) => {
+                expect(res.statusCode).toBe(401);
+                Comment.all()
+                .then((comments) => {
+                  expect(err).toBeNull();
+                  expect(comments.length).toBe(commentCountBeforeDelete);
+                  done();
+                });
+              });
+            });
+          });
+
          });
        });
 
@@ -187,7 +207,7 @@ describe("routes : comments", () => {
    // #3
         describe("POST /topics/:topicId/posts/:postId/comments/:id/destroy", () => {
    
-          it("should delete the comment with the associated ID", (done) => {
+          it("admin should be able to delete the comment with any associated ID", (done) => {
             Comment.all()
             .then((comments) => {
               const commentCountBeforeDelete = comments.length;
@@ -209,6 +229,8 @@ describe("routes : comments", () => {
             })
    
           });
+
+
    
         });
    
