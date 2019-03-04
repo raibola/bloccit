@@ -6,6 +6,7 @@ module.exports = {
       const advertisementRoutes = require("../routes/advertisements");
       const userRoutes = require("../routes/users");
       const commentRoutes = require("../routes/comments");
+      const voteRoutes = require("../routes/votes");
 
 
 
@@ -20,5 +21,6 @@ module.exports = {
       app.use(advertisementRoutes);
       app.use(userRoutes);
       app.use(commentRoutes);
+      app.use(voteRoutes);
     }
   }
