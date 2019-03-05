@@ -45,7 +45,6 @@ module.exports = (sequelize, DataTypes) => {
         postId: post.id
       });
     });
-
     Post.afterCreate((post, callback) => {
         return models.Vote.create({
           value: 1,
